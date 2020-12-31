@@ -69,6 +69,7 @@
               </v-menu>
             </v-toolbar>
           </v-sheet>
+          <!-- check if tTime is necessary -->
           <v-sheet height="600">
             <v-calendar
               ref="calendar"
@@ -81,6 +82,7 @@
               @click:event="showEvent"
               @click:more="viewDay"
               @click:date="viewDay"
+              @click:day="dayClick($event)"
             ></v-calendar>
             <v-menu
               v-model="selectedOpen"
@@ -284,6 +286,9 @@ export default {
   },
 
   methods: {
+    dayClick(e) {
+      console.log(e)
+    },
     home() {
       window.location.href = "http://google.com"
     },
