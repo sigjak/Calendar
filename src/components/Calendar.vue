@@ -77,7 +77,7 @@
               :events="events"
               :event-color="getEventColor"
               :type="type"
-              @click:time="tTime"
+              @click:time="tTime($event)"
               @click:event="showEvent"
               @click:more="viewDay"
               @click:date="viewDay"
@@ -144,7 +144,7 @@
           <v-form @submit.prevent="submitEvent">
             <v-text-field
               type="text"
-              v-model="res.name"
+              v-model="reserve.name"
               required
               label="Name"
               class="mb-0 pb-0"
@@ -156,7 +156,7 @@
               required
               label="Day"
               type="date"
-              v-model="res.date"
+              v-model="reserve.date"
             ></v-text-field>
             <p class="errorMessages " v-if="!dateIsValid">
               Date required
@@ -169,7 +169,7 @@
                 <vue-timepicker
                   required
                   class="mt-4"
-                  v-model="res.start"
+                  v-model="reserve.start"
                   input-width="7em"
                   :minute-interval="15"
                   drop-direction="auto"
@@ -185,7 +185,7 @@
               <div>
                 <vue-timepicker
                   class="mt-4"
-                  v-model="res.end"
+                  v-model="reserve.end"
                   input-width="7em"
                   :minute-interval="15"
                   drop-direction="auto"
@@ -197,7 +197,7 @@
               </div>
             </v-row>
             <v-text-field
-              v-model="res.details"
+              v-model="reserve.details"
               label="Details"
               type="text"
               hint="if relevant"
@@ -230,7 +230,7 @@ export default {
       day: "Day",
       "4day": "4 Days"
     },
-    res: {
+    reserve: {
       name: "",
       details: "",
       start: "",
@@ -262,16 +262,16 @@ export default {
   },
   computed: {
     nameIsValid() {
-      return !!this.res.name
+      return !!this.reserve.name
     },
     startIsValid() {
-      return this.res.start.length > 4
+      return this.reserve.start.length > 4
     },
     endIsValid() {
-      return !!this.res.end
+      return !!this.reserve.end
     },
     dateIsValid() {
-      return !!this.res.date
+      return !!this.reserve.date
     },
     formIsValid() {
       return (
@@ -287,25 +287,16 @@ export default {
     home() {
       window.location.href = "http://google.com"
     },
-    tTime() {
-      console.log("time clicked")
+    tTime(e) {
+      console.log(e.date)
       console.log(this.selectedOpen)
-      console.log(Math.floor(Math.random() * 7))
-      console.log(this.colors[Math.random().nextInt(7)])
 
-      // if selectedOpen is true do nothing  else open input dialog
-      // if (!this.selectedOpen) {
-      //   let dummy = {
-      //     name: "new entry",
-      //     details: "these are details",
-      //     start: "2020-12-26 14:00",
-      //     end: "2020-12-26 14:45",
-      //     color: this.colors[Math.floor(Math.random() * 7)]
-      //   }
-      //   this.events.push(dummy)
-      // }
+      //if selectedOpen is true do nothing  else open input dialog
+      if (!this.selectedOpen) {
+        // this.dialog = true
+      }
 
-      //console.log(this.events)
+      // console.log(this.reserve)
     },
     viewDay({ date }) {
       this.focus = date
@@ -349,47 +340,16 @@ export default {
       this.dialog = true
     },
     submitEvent() {
-      this.res.color = this.colors[Math.floor(Math.random() * 7)]
-      this.res.start = this.res.date + " " + this.res.start
-      this.res.end = this.res.date + " " + this.res.end
-      this.res.tStamp = new Date().getTime()
-      console.log(this.res)
-      this.$http.post("postData.php", this.res).then(resp => {
+      this.reserve.color = this.colors[Math.floor(Math.random() * 7)]
+      this.reserve.start = this.reserve.date + " " + this.reserve.start
+      this.reserve.end = this.reserve.date + " " + this.reserve.end
+      this.reserve.tStamp = new Date().getTime()
+      console.log(this.reserve)
+      this.$http.post("postData.php", this.reserve).then(resp => {
         console.log(resp.data)
-        this.$http.get("getData.php").then(resp => {
-          this.events = resp.data
-        })
+        this.events.push(this.reserve)
       })
     }
-    // updateRange({ start, end }) {
-    //   const events = []
-
-    //   const min = new Date(`${start.date}T00:00:00`)
-    //   const max = new Date(`${end.date}T23:59:59`)
-    //   const days = (max.getTime() - min.getTime()) / 86400000
-    //   const eventCount = this.rnd(days, days + 20)
-
-    //   for (let i = 0; i < eventCount; i++) {
-    //     const allDay = this.rnd(0, 3) === 0
-    //     const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-    //     const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-    //     const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-    //     const second = new Date(first.getTime() + secondTimestamp)
-
-    //     events.push({
-    //       name: this.names[this.rnd(0, this.names.length - 1)],
-    //       start: first,
-    //       end: second,
-    //       color: this.colors[this.rnd(0, this.colors.length - 1)],
-    //       timed: !allDay
-    //     })
-    //   }
-
-    //   this.events = events
-    // },
-    // rnd(a, b) {
-    //   return Math.floor((b - a + 1) * Math.random()) + a
-    // }
   }
 }
 </script>
