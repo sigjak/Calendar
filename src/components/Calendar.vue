@@ -13,6 +13,7 @@
         <v-col>
           <v-sheet height="64">
             <v-toolbar flat>
+              <v-btn @click="resetData">reset</v-btn>
               <v-btn @click="addEvent" class="mr-4" color="primary"
                 >Add Event</v-btn
               >
@@ -143,7 +144,7 @@
       <v-card class="ma-5" max-width="458">
         <v-card-title><span class="headline">Event</span></v-card-title>
         <v-container>
-          <v-form @submit.prevent="submitEvent">
+          <v-form ref="form" @submit.prevent="submitEvent">
             <v-text-field
               type="text"
               v-model="reserve.name"
@@ -171,7 +172,7 @@
                 <vue-timepicker
                   required
                   class="mt-4"
-                  v-model="reserve.start"
+                  v-model="startTime"
                   input-width="7em"
                   :minute-interval="15"
                   drop-direction="auto"
@@ -187,7 +188,7 @@
               <div>
                 <vue-timepicker
                   class="mt-4"
-                  v-model="reserve.end"
+                  v-model="endTime"
                   input-width="7em"
                   :minute-interval="15"
                   drop-direction="auto"
@@ -232,9 +233,12 @@ export default {
       day: "Day",
       "4day": "4 Days"
     },
+    startTime: "",
+    endTime: "",
     reserve: {
       name: "",
       details: "",
+      date: null,
       start: "",
       end: "",
       color: "#197602",
@@ -257,9 +261,7 @@ export default {
     dialog: false
   }),
   mounted() {
-    this.$http.get("getData.php").then(resp => {
-      this.events = resp.data
-    })
+    this.getData()
     this.$refs.calendar.checkChange(), this.setToday()
   },
   computed: {
@@ -267,10 +269,10 @@ export default {
       return !!this.reserve.name
     },
     startIsValid() {
-      return this.reserve.start.length > 4
+      return this.startTime.length > 4
     },
     endIsValid() {
-      return !!this.reserve.end
+      return !!this.endTime && this.startTime < this.endTime
     },
     dateIsValid() {
       return !!this.reserve.date
@@ -286,6 +288,22 @@ export default {
   },
 
   methods: {
+    getData() {
+      this.$http.get("getData.php").then(resp => {
+        this.events = resp.data
+      })
+    },
+    resetData() {
+      this.reserve.name = ""
+      this.reserve.date = null
+      this.reserve.details = ""
+      this.reserve.start = ""
+      this.reserve.end = "1970-01-01 04:20"
+      this.reserve.color = ""
+      this.reserve.tStamp = null
+      this.startTime = "HH:mm"
+      this.endTime = "HH:mm"
+    },
     dayClick(e) {
       console.log(e)
     },
@@ -293,8 +311,9 @@ export default {
       window.location.href = "http://google.com"
     },
     tTime(e) {
-      console.log(e.date)
+      console.log(e)
       console.log(this.selectedOpen)
+      console.log("in time")
 
       //if selectedOpen is true do nothing  else open input dialog
       if (!this.selectedOpen) {
@@ -342,17 +361,19 @@ export default {
       nativeEvent.stopPropagation()
     },
     addEvent() {
+      this.resetData()
       this.dialog = true
     },
     submitEvent() {
       this.reserve.color = this.colors[Math.floor(Math.random() * 7)]
-      this.reserve.start = this.reserve.date + " " + this.reserve.start
-      this.reserve.end = this.reserve.date + " " + this.reserve.end
+      this.reserve.start = this.reserve.date + " " + this.startTime
+      this.reserve.end = this.reserve.date + " " + this.endTime
       this.reserve.tStamp = new Date().getTime()
-      console.log(this.reserve)
+
       this.$http.post("postData.php", this.reserve).then(resp => {
         console.log(resp.data)
         this.events.push(this.reserve)
+        //this.getData()
       })
     }
   }
