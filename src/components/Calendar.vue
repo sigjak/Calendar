@@ -13,7 +13,6 @@
         <v-col>
           <v-sheet height="64">
             <v-toolbar flat>
-              <v-btn @click="resetData">reset</v-btn>
               <v-btn @click="addEvent" class="mr-4" color="primary"
                 >Add Event</v-btn
               >
@@ -233,6 +232,7 @@ export default {
       day: "Day",
       "4day": "4 Days"
     },
+    regex: /\d{2}:\d{2}/,
     startTime: "",
     endTime: "",
     reserve: {
@@ -269,10 +269,10 @@ export default {
       return !!this.reserve.name
     },
     startIsValid() {
-      return this.startTime.length > 4
+      return this.regex.test(this.startTime)
     },
     endIsValid() {
-      return !!this.endTime && this.startTime < this.endTime
+      return this.regex.test(this.endTime) && this.startTime < this.endTime
     },
     dateIsValid() {
       return !!this.reserve.date
@@ -293,14 +293,7 @@ export default {
         this.events = resp.data
       })
     },
-    resetData() {
-      this.reserve.name = ""
-      this.reserve.date = null
-      this.reserve.details = ""
-      this.reserve.start = ""
-      this.reserve.end = "1970-01-01 04:20"
-      this.reserve.color = ""
-      this.reserve.tStamp = null
+    resetTimer() {
       this.startTime = "HH:mm"
       this.endTime = "HH:mm"
     },
@@ -319,8 +312,6 @@ export default {
       if (!this.selectedOpen) {
         // this.dialog = true
       }
-
-      // console.log(this.reserve)
     },
     viewDay({ date }) {
       this.focus = date
@@ -361,20 +352,21 @@ export default {
       nativeEvent.stopPropagation()
     },
     addEvent() {
-      this.resetData()
       this.dialog = true
     },
     submitEvent() {
-      this.reserve.color = this.colors[Math.floor(Math.random() * 7)]
-      this.reserve.start = this.reserve.date + " " + this.startTime
-      this.reserve.end = this.reserve.date + " " + this.endTime
-      this.reserve.tStamp = new Date().getTime()
+      let obj = {
+        name: this.reserve.name,
+        start: this.reserve.date + " " + this.startTime,
+        end: this.reserve.date + " " + this.endTime,
+        color: this.colors[Math.floor(Math.random() * 7)],
+        details: this.reserve.details,
+        tStamp: new Date().getTime()
+      }
 
-      this.$http.post("postData.php", this.reserve).then(resp => {
-        console.log(resp.data)
-        this.events.push(this.reserve)
-        //this.getData()
-      })
+      this.$http
+        .post("postData.php", obj)
+        .then(this.events.push(obj), this.$refs.form.reset(), this.resetTimer())
     }
   }
 }
