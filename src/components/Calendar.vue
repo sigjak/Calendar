@@ -3,6 +3,7 @@
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>Institute of Earth Sciences </v-toolbar-title>
       <v-spacer></v-spacer>
+
       <v-toolbar-title> Snattari</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text class="mr-4" @click="home">Home </v-btn>
@@ -90,10 +91,8 @@
             <v-menu
               v-model="selectedOpen"
               :close-on-content-click="false"
-              :close-on-click="false"
               :activator="selectedElement"
               offset-x
-              @click="myo"
             >
               <v-card color="grey lighten-4" min-width="350px" flat>
                 <v-toolbar :color="selectedEvent.color" dark>
@@ -129,7 +128,7 @@
                   </form>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn text color="secondary" @click="my">
+                  <v-btn text color="secondary" @click="closeShow">
                     Close
                   </v-btn>
                   <v-btn
@@ -271,6 +270,11 @@ export default {
     events: [],
     dialog: false
   }),
+  watch: {
+    selectedOpen: function() {
+      this.overlay = !this.overlay
+    }
+  },
   mounted() {
     this.getData()
     this.$refs.calendar.checkChange(), this.setToday()
@@ -299,9 +303,8 @@ export default {
   },
 
   methods: {
-    my() {
+    closeShow() {
       this.selectedOpen = false
-      this.overlay = false
     },
 
     getData() {
@@ -351,12 +354,11 @@ export default {
       this.currentlyEditing = ev.id
     },
     showEvent({ nativeEvent, event }) {
-      console.log("one")
       const open = () => {
         this.selectedEvent = event
-        console.log("two")
-        this.selectedElement = nativeEvent.target
 
+        this.selectedElement = nativeEvent.target
+        this.selectedOpen = true
         setTimeout(() => {
           this.selectedOpen = true
           console.log("three")
@@ -369,8 +371,7 @@ export default {
       } else {
         open()
       }
-      console.log("ee")
-      console.log(this.selectedOpen)
+
       nativeEvent.stopPropagation()
     },
     addEvent() {
