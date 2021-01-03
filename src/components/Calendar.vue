@@ -84,6 +84,8 @@
               @click:date="viewDay"
               @click:day="dayClick($event)"
             ></v-calendar>
+
+            <!-- ---------------Selected item------------- -->
             <v-menu
               v-model="selectedOpen"
               :close-on-content-click="false"
@@ -98,7 +100,11 @@
                   <v-toolbar-title
                     v-html="selectedEvent.name"
                   ></v-toolbar-title>
-                  <v-toolbar-title v-html="selectedEvent.hrs"></v-toolbar-title>
+                  <v-toolbar-subtitle
+                    class="ml-2 mt-1 text-caption"
+                    v-html="selectedEvent.timerange"
+                  ></v-toolbar-subtitle>
+
                   <v-spacer></v-spacer>
                   <v-btn icon @click="deleteEvent(selectedEvent.id)">
                     <v-icon>mdi-delete</v-icon>
@@ -139,6 +145,7 @@
         </v-col>
       </v-row>
     </v-container>
+    <!-- -----------------form modal --------------------------- -->
     <v-dialog v-model="dialog" max-width="500">
       <v-card class="ma-5" max-width="458">
         <v-card-title><span class="headline">Event</span></v-card-title>
@@ -335,6 +342,7 @@ export default {
     showEvent({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = event
+        this.selectedEvent.start = "gogo"
         this.selectedElement = nativeEvent.target
 
         setTimeout(() => {
@@ -361,7 +369,8 @@ export default {
         end: this.reserve.date + " " + this.endTime,
         color: this.colors[Math.floor(Math.random() * 7)],
         details: this.reserve.details,
-        tStamp: new Date().getTime()
+        tStamp: new Date().getTime(),
+        timeRange: this.startTime + "-" + this.endTime
       }
 
       this.$http
