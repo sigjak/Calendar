@@ -71,6 +71,7 @@
           </v-sheet>
           <!-- check if tTime is necessary -->
           <v-sheet height="600">
+            <v-overlay :value="overlay" @click="overlay = false"></v-overlay>
             <v-calendar
               ref="calendar"
               v-model="focus"
@@ -89,8 +90,10 @@
             <v-menu
               v-model="selectedOpen"
               :close-on-content-click="false"
+              :close-on-click="false"
               :activator="selectedElement"
               offset-x
+              @click="myo"
             >
               <v-card color="grey lighten-4" min-width="350px" flat>
                 <v-toolbar :color="selectedEvent.color" dark>
@@ -100,10 +103,10 @@
                   <v-toolbar-title
                     v-html="selectedEvent.name"
                   ></v-toolbar-title>
-                  <v-toolbar-subtitle
+                  <v-toolbar-title
                     class="ml-2 mt-1 text-caption"
                     v-html="selectedEvent.timerange"
-                  ></v-toolbar-subtitle>
+                  ></v-toolbar-title>
 
                   <v-spacer></v-spacer>
                   <v-btn icon @click="deleteEvent(selectedEvent.id)">
@@ -126,7 +129,7 @@
                   </form>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn text color="secondary" @click="selectedOpen = false">
+                  <v-btn text color="secondary" @click="my">
                     Close
                   </v-btn>
                   <v-btn
@@ -231,6 +234,7 @@
 <script>
 export default {
   data: () => ({
+    overlay: false,
     focus: "",
     type: "month",
     typeToLabel: {
@@ -295,6 +299,11 @@ export default {
   },
 
   methods: {
+    my() {
+      this.selectedOpen = false
+      this.overlay = false
+    },
+
     getData() {
       this.$http.get("getData.php").then(resp => {
         this.events = resp.data
@@ -306,6 +315,8 @@ export default {
     },
     dayClick(e) {
       console.log(e)
+      this.reserve.date = e.date
+      this.addEvent()
     },
     home() {
       window.location.href = "http://google.com"
@@ -340,13 +351,15 @@ export default {
       this.currentlyEditing = ev.id
     },
     showEvent({ nativeEvent, event }) {
+      console.log("one")
       const open = () => {
         this.selectedEvent = event
-        this.selectedEvent.start = "gogo"
+        console.log("two")
         this.selectedElement = nativeEvent.target
 
         setTimeout(() => {
           this.selectedOpen = true
+          console.log("three")
         }, 10)
       }
 
@@ -356,7 +369,8 @@ export default {
       } else {
         open()
       }
-
+      console.log("ee")
+      console.log(this.selectedOpen)
       nativeEvent.stopPropagation()
     },
     addEvent() {
