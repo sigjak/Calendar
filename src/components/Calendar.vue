@@ -4,7 +4,7 @@
       <v-toolbar-title>Institute of Earth Sciences </v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-toolbar-title> Snattari</v-toolbar-title>
+      <v-toolbar-title> Bíll</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text class="mr-4" @click="home">Home </v-btn>
       <v-btn icon><v-icon>mdi-export</v-icon></v-btn>
@@ -103,6 +103,7 @@
                     v-html="selectedEvent.name"
                   ></v-toolbar-title>
                   <v-toolbar-title
+                    v-model="selectedEvent.timerange"
                     class="ml-2 mt-1 text-caption"
                     v-html="selectedEvent.timerange"
                   ></v-toolbar-title>
@@ -326,7 +327,7 @@ export default {
     },
     tTime(e) {
       console.log(e)
-      console.log(this.selectedOpen)
+      //console.log(this.selectedOpen)
       console.log("in time")
 
       //if selectedOpen is true do nothing  else open input dialog
@@ -356,12 +357,11 @@ export default {
     showEvent({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = event
-
+        console.log(this.selectedEvent)
         this.selectedElement = nativeEvent.target
         this.selectedOpen = true
         setTimeout(() => {
           this.selectedOpen = true
-          console.log("three")
         }, 10)
       }
 
@@ -378,13 +378,14 @@ export default {
       this.dialog = true
     },
     submitEvent() {
+      console.log(this.selectedEvent)
+      console.log(this.selectedElement)
       let obj = {
         name: this.reserve.name,
         start: this.reserve.date + " " + this.startTime,
         end: this.reserve.date + " " + this.endTime,
         color: this.colors[Math.floor(Math.random() * 7)],
         details: this.reserve.details,
-        tStamp: new Date().getTime(),
         timeRange: this.startTime + "-" + this.endTime
       }
 
